@@ -20,27 +20,28 @@ public class Main {
         List<String> urls = extractor.extractDistinct(URL, file);
 
         List<String> collect = filterUrls(urls);
+//        List<String> collect2 = replaceInUrls(collect);
 
-        collect.forEach(System.out::println);
+        collect.stream().sorted().forEach(System.out::println);
+    }
+
+    private static List<String> replaceInUrls(List<String> urls) {
+        return urls.stream().map(url -> url.replace("http://localhost:8081/incaso_crm_war_exploded", "")).collect(Collectors.toList());
     }
 
     private static List<String> filterUrls(List<String> urls) {
-        return urls.stream().filter(Main::contains).collect(Collectors.toList());
+        return urls.stream().filter(Main::filter).collect(Collectors.toList());
     }
 
-    private static boolean notContains(String url) {
-        return !url.contains("//cdn.") &&
-                !url.contains("favicon") &&
-                !url.contains("/static/js") &&
-                !url.contains("manifest.json") &&
-                !url.equals("http://localhost:3000/");
-    }
-
-    private static boolean contains(String url) {
-        return url.contains("cdn") ||
-                url.contains("favicon") ||
-                url.contains("/static/js") ||
-                url.contains("manifest.json") ||
-                url.equals("http://localhost:3000/");
+    private static boolean filter(String url) {
+        List<String> containing = List.of("//cdn.", "favicon", "/static/js", "manifest.json", "/assets", "/js", "/autocomplete", "/images/", "/schedule");
+        List<String> equals = List.of("http://localhost:8081/");
+        for (String key : containing) {
+            if (url.contains(key)) return false;
+        }
+        for (String key : equals) {
+            if (url.equals(key)) return false;
+        }
+        return true;
     }
 }
